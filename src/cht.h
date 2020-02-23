@@ -3,15 +3,6 @@
 
 #include <stddef.h> /* for size_t */
 
-#define _CHT_SIZE 20000
-
-typedef struct Entry
-{
-	char *key;
-	char *val;
-	struct Entry *next;
-} Entry;
-
 /*
 	the custom hash function signature must be as following:
 	`size_t hash_fn(const char *);`
@@ -19,13 +10,8 @@ typedef struct Entry
 */
 typedef size_t (*hash_fn)(const char *);
 
-typedef struct
-{
-	/* an array of Entry pointers */
-	Entry **entries;
-	/* a user can supply a custom hash function for the hash table to use */
-	hash_fn hf;
-} HashTable;
+typedef struct _Entry Entry;
+typedef struct _HashTable HashTable;
 
 /* the custom hash function is optional, pass NULL to use the default one provided by cht */
 HashTable *cht_init(hash_fn hf);
@@ -36,8 +22,11 @@ char *cht_get(HashTable *h, const char *key);
 
 void cht_delete(HashTable *h, const char *key);
 
+size_t cht_size(HashTable *h);
+
 void cht_free(HashTable *h);
 
+void cht_print(HashTable *h);
 /*
 	print information about the table, useful for debugging purposes.
 	example output:
@@ -48,6 +37,5 @@ void cht_free(HashTable *h);
 		bucket #6908 ('Joanna': 'singer')
 		bucket #13445 ('Emily': 'artist')
 */
-void cht_print(HashTable *h);
 
 #endif /* CHT_H */

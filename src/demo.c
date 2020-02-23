@@ -68,6 +68,8 @@ int main(void)
 
 	puts(nemo); /* prints 'Pomacentridae' */
 
+	printf("There are %lu entries in the people hash table\n", cht_size(people));
+
 	/* deallocate the memory that was used by the tables */
 	cht_free(animals);
 	cht_free(people);

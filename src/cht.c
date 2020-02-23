@@ -4,6 +4,26 @@
 
 #include "cht.h"
 
+#define _CHT_SIZE 20000
+
+#define _CHT_FOREACH(i) \
+	for (i = 0; i < _CHT_SIZE; ++i)
+
+struct _Entry
+{
+	char *key;
+	char *val;
+	struct _Entry *next;
+};
+
+struct _HashTable
+{
+	/* an array of Entry pointers */
+	Entry **entries;
+	/* a user can supply a custom hash function for the hash table to use */
+	hash_fn hf;
+};
+
 static size_t _hash(const char *s)
 {
 	size_t hash = 5381;
@@ -33,15 +53,17 @@ static Entry *_pair(const char *key, const char *val)
 HashTable *cht_init(hash_fn hf)
 {
 	HashTable *h = malloc(sizeof(HashTable));
+	int i;
 
 	if (!h || !(h->entries = malloc(sizeof(Entry *) * _CHT_SIZE)))
 		return NULL;
 
 	h->hf = hf;
 
-	int i;
-	for (i = 0; i < _CHT_SIZE; ++i)
+	_CHT_FOREACH(i)
+	{
 		h->entries[i] = NULL;
+	}
 
 	return h;
 }
@@ -49,15 +71,13 @@ HashTable *cht_init(hash_fn hf)
 void cht_insert(HashTable *h, const char *key, const char *val)
 {
 	size_t idx = ((h->hf != NULL) ? h->hf(key) : _hash(key)) % _CHT_SIZE;
-	Entry *e = h->entries[idx];
+	Entry *e = h->entries[idx], *prev;
 
 	if (e == NULL)
 	{
 		h->entries[idx] = _pair(key, val);
 		return;
 	}
-
-	Entry *prev;
 
 	while (e != NULL)
 	{
@@ -97,13 +117,11 @@ char *cht_get(HashTable *h, const char *key)
 void cht_delete(HashTable *h, const char *key)
 {
 	size_t bucket = ((h->hf != NULL) ? h->hf(key) : _hash(key)) % _CHT_SIZE;
-	Entry *e = h->entries[bucket];
+	Entry *e = h->entries[bucket], *prev;
+	int i = 0;
 
 	if (e == NULL)
 		return;
-
-	Entry *prev;
-	int i = 0;
 
 	while (e != NULL)
 	{
@@ -134,10 +152,24 @@ void cht_delete(HashTable *h, const char *key)
 	}
 }
 
+size_t cht_size(HashTable *h)
+{
+	size_t ret = 0;
+	int i;
+
+	_CHT_FOREACH(i)
+	{
+		if (h->entries[i] != NULL)
+			++ret;
+	}
+
+	return ret;
+}
+
 void cht_free(HashTable *h)
 {
 	int i;
-	for (i = 0; i < _CHT_SIZE; ++i)
+	_CHT_FOREACH(i)
 	{
 		Entry *e = h->entries[i];
 
@@ -155,12 +187,11 @@ void cht_free(HashTable *h)
 
 void cht_print(HashTable *h)
 {
-	static int n = 1;
+	static int n = 1, i;
 	printf("cht_print() Call No. %d:\n", n++);
 	puts("----------------------------");
 
-	int i;
-	for (i = 0; i < _CHT_SIZE; ++i)
+	_CHT_FOREACH(i)
 	{
 		Entry *e = h->entries[i];
 
