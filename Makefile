@@ -1,10 +1,10 @@
-TARGET = cht
-CC = cc
-CFLAGS = -g -Wall -Wextra -pedantic
-RM = -rm -f
+TARGET ?= cht
+CC ?= cc
+CFLAGS ?= -g -Wall -Wextra -pedantic
+RM ?= -rm -f
 
-SRCDIR = src
-OBJDIR = build
+SRCDIR ?= src
+OBJDIR ?= build
 
 .PHONY: default all clean
 

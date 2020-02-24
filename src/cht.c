@@ -4,10 +4,13 @@
 
 #include "cht.h"
 
-#define _CHT_SIZE 20000
+#define DEFAULT_TABLE_SIZE 20000
 
-#define _CHT_FOREACH(i) \
-	for (i = 0; i < _CHT_SIZE; ++i)
+#define TABLE_FOREACH(i) \
+	for (i = 0; i < h->size; ++i)
+
+#define TABLE_IDX() \
+	((h->hf != NULL) ? h->hf(key) : _hash(key)) % h->size
 
 struct _Entry
 {
@@ -22,6 +25,8 @@ struct _HashTable
 	Entry **entries;
 	/* a user can supply a custom hash function for the hash table to use */
 	hash_fn hf;
+	/* number of entries in the hash table */
+	size_t size;
 };
 
 static size_t _hash(const char *s)
@@ -50,17 +55,21 @@ static Entry *_pair(const char *key, const char *val)
 	return e;
 }
 
-HashTable *cht_init(hash_fn hf)
+HashTable *cht_init(hash_fn hf, size_t size)
 {
 	HashTable *h = malloc(sizeof(HashTable));
-	int i;
+	size_t i;
 
-	if (!h || !(h->entries = malloc(sizeof(Entry *) * _CHT_SIZE)))
+	if (!h)
 		return NULL;
 
 	h->hf = hf;
+	h->size = (size == 0) ? DEFAULT_TABLE_SIZE : size;
 
-	_CHT_FOREACH(i)
+	if (!(h->entries = malloc(sizeof(Entry *) * h->size)))
+		return NULL;
+
+	TABLE_FOREACH(i)
 	{
 		h->entries[i] = NULL;
 	}
@@ -70,7 +79,7 @@ HashTable *cht_init(hash_fn hf)
 
 void cht_insert(HashTable *h, const char *key, const char *val)
 {
-	size_t idx = ((h->hf != NULL) ? h->hf(key) : _hash(key)) % _CHT_SIZE;
+	size_t idx = TABLE_IDX();
 	Entry *e = h->entries[idx], *prev;
 
 	if (e == NULL)
@@ -100,7 +109,7 @@ void cht_insert(HashTable *h, const char *key, const char *val)
 
 char *cht_get(HashTable *h, const char *key)
 {
-	size_t idx = ((h->hf != NULL) ? h->hf(key) : _hash(key)) % _CHT_SIZE;
+	size_t idx = TABLE_IDX();
 	Entry *e = h->entries[idx];
 
 	while (e != NULL)
@@ -116,7 +125,7 @@ char *cht_get(HashTable *h, const char *key)
 
 void cht_delete(HashTable *h, const char *key)
 {
-	size_t bucket = ((h->hf != NULL) ? h->hf(key) : _hash(key)) % _CHT_SIZE;
+	size_t bucket = TABLE_IDX();
 	Entry *e = h->entries[bucket], *prev;
 	int i = 0;
 
@@ -146,7 +155,8 @@ void cht_delete(HashTable *h, const char *key)
 			return;
 		}
 
-		prev = e, e = prev->next;
+		prev = e;
+		e = prev->next;
 
 		++i;
 	}
@@ -154,10 +164,9 @@ void cht_delete(HashTable *h, const char *key)
 
 size_t cht_size(HashTable *h)
 {
-	size_t ret = 0;
-	int i;
+	size_t ret = 0, i;
 
-	_CHT_FOREACH(i)
+	TABLE_FOREACH(i)
 	{
 		if (h->entries[i] != NULL)
 			++ret;
@@ -168,8 +177,8 @@ size_t cht_size(HashTable *h)
 
 void cht_free(HashTable *h)
 {
-	int i;
-	_CHT_FOREACH(i)
+	size_t i;
+	TABLE_FOREACH(i)
 	{
 		Entry *e = h->entries[i];
 
@@ -187,11 +196,11 @@ void cht_free(HashTable *h)
 
 void cht_print(HashTable *h)
 {
-	static int n = 1, i;
+	static unsigned int n = 1, i;
 	printf("cht_print() Call No. %d:\n", n++);
 	puts("----------------------------");
 
-	_CHT_FOREACH(i)
+	TABLE_FOREACH(i)
 	{
 		Entry *e = h->entries[i];
 

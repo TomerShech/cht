@@ -13,8 +13,11 @@ typedef size_t (*hash_fn)(const char *);
 typedef struct _Entry Entry;
 typedef struct _HashTable HashTable;
 
-/* the custom hash function is optional, pass NULL to use the default one provided by cht */
-HashTable *cht_init(hash_fn hf);
+/*
+	the custom hash function is optional, pass NULL to use the default one provided by cht
+	size is also optional, pass 0 to use the default value
+*/
+HashTable *cht_init(hash_fn hf, size_t size);
 
 void cht_insert(HashTable *h, const char *key, const char *val);
 
@@ -30,7 +33,7 @@ void cht_print(HashTable *h);
 /*
 	print information about the table, useful for debugging purposes.
 	example output:
-		
+
 		cht_print() Call No. 1:
 		----------------------------
 		bucket #4660 ('John': 'programmer')

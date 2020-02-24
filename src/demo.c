@@ -16,10 +16,10 @@ size_t kr_hash(const char *s)
 int main(void)
 {
 	/* use the default hash function provided by cht */
-	HashTable *people = cht_init(NULL);
+	HashTable *people = cht_init(NULL, 0);
 	/* OR use a custom hash function, which must return
 	an unsigned integer and take a constant string */
-	HashTable *animals = cht_init(kr_hash);
+	HashTable *animals = cht_init(kr_hash, 10);
 
 	/* insert some key-value pairs into the people table */
 	cht_insert(people, "John", "programmer");
