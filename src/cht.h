@@ -6,30 +6,44 @@
 /*
 	the custom hash function signature must be as following:
 	`size_t hash_fn(const char *);`
-	(return an unsigned integer and take a constant string)
+	(return an unsigned integer and take a constant string).
 */
 typedef size_t (*hash_fn)(const char *);
 
-typedef struct _Entry Entry;
-typedef struct _HashTable HashTable;
+typedef struct _Entry
+{
+	char *key;
+	char *val;
+	struct _Entry *next;
+} Entry;
+
+typedef struct _HashTable
+{
+	/* an array of Entry pointers */
+	Entry **entries;
+	/* a user can supply a custom hash function for the hash table to use */
+	hash_fn fn;
+	/* number of entries in the hash table */
+	size_t size;
+} HashTable;
 
 /*
-	the custom hash function is optional, pass NULL to use the default one provided by cht
-	size is also optional, pass 0 to use the default value
+	a custom hash function is optional, pass a NULL pointer to use the default one.
+	size is also optional, pass 0 to use the default value.
 */
-HashTable *cht_init(hash_fn hf, size_t size);
+HashTable *cht_init(hash_fn fn, size_t size);
 
-void cht_insert(HashTable *h, const char *key, const char *val);
+void cht_insert(HashTable *self, const char *key, const char *val);
 
-char *cht_get(HashTable *h, const char *key);
+char *cht_get(HashTable *self, const char *key);
 
-void cht_delete(HashTable *h, const char *key);
+void cht_delete(HashTable *self, const char *key);
 
-size_t cht_size(HashTable *h);
+size_t cht_size(HashTable *self);
 
-void cht_free(HashTable *h);
+void cht_free(HashTable *self);
 
-void cht_print(HashTable *h);
+void cht_print(HashTable *self);
 /*
 	print information about the table, useful for debugging purposes.
 	example output:

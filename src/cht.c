@@ -3,42 +3,11 @@
 #include <stdio.h>
 
 #include "cht.h"
+#include "hash.h"
 
-#define DEFAULT_TABLE_SIZE 20000
-
-#define TABLE_FOREACH(i) \
-	for (i = 0; i < h->size; ++i)
-
-#define TABLE_IDX() \
-	((h->hf != NULL) ? h->hf(key) : _hash(key)) % h->size
-
-struct _Entry
-{
-	char *key;
-	char *val;
-	struct _Entry *next;
-};
-
-struct _HashTable
-{
-	/* an array of Entry pointers */
-	Entry **entries;
-	/* a user can supply a custom hash function for the hash table to use */
-	hash_fn hf;
-	/* number of entries in the hash table */
-	size_t size;
-};
-
-static size_t _hash(const char *s)
-{
-	size_t hash = 5381;
-	int c;
-
-	while ((c = *s++))
-		hash = ((hash << 5) + hash) + c;
-
-	return hash;
-}
+#define DEFAULT_HT_SIZE 20000
+#define HT_IDX() \
+	((self->fn != NULL) ? self->fn(key) : hash_djb2(key)) % self->size
 
 static Entry *_pair(const char *key, const char *val)
 {
@@ -55,36 +24,34 @@ static Entry *_pair(const char *key, const char *val)
 	return e;
 }
 
-HashTable *cht_init(hash_fn hf, size_t size)
+HashTable *cht_init(hash_fn fn, size_t size)
 {
-	HashTable *h = malloc(sizeof(HashTable));
+	HashTable *ret = malloc(sizeof(HashTable));
 	size_t i;
 
-	if (!h)
+	if (!ret)
 		return NULL;
 
-	h->hf = hf;
-	h->size = (size == 0) ? DEFAULT_TABLE_SIZE : size;
+	ret->fn = fn;
+	ret->size = (size == 0) ? DEFAULT_HT_SIZE : size;
 
-	if (!(h->entries = malloc(sizeof(Entry *) * h->size)))
+	if (!(ret->entries = malloc(sizeof(Entry *) * ret->size)))
 		return NULL;
 
-	TABLE_FOREACH(i)
-	{
-		h->entries[i] = NULL;
-	}
+	for (i = 0; i < ret->size; ++i)
+		ret->entries[i] = NULL;
 
-	return h;
+	return ret;
 }
 
-void cht_insert(HashTable *h, const char *key, const char *val)
+void cht_insert(HashTable *self, const char *key, const char *val)
 {
-	size_t idx = TABLE_IDX();
-	Entry *e = h->entries[idx], *prev;
+	size_t idx = HT_IDX();
+	Entry *e = self->entries[idx], *prev;
 
 	if (e == NULL)
 	{
-		h->entries[idx] = _pair(key, val);
+		self->entries[idx] = _pair(key, val);
 		return;
 	}
 
@@ -107,10 +74,10 @@ void cht_insert(HashTable *h, const char *key, const char *val)
 	prev->next = _pair(key, val);
 }
 
-char *cht_get(HashTable *h, const char *key)
+char *cht_get(HashTable *self, const char *key)
 {
-	size_t idx = TABLE_IDX();
-	Entry *e = h->entries[idx];
+	size_t idx = HT_IDX();
+	Entry *e = self->entries[idx];
 
 	while (e != NULL)
 	{
@@ -123,10 +90,10 @@ char *cht_get(HashTable *h, const char *key)
 	return NULL;
 }
 
-void cht_delete(HashTable *h, const char *key)
+void cht_delete(HashTable *self, const char *key)
 {
-	size_t bucket = TABLE_IDX();
-	Entry *e = h->entries[bucket], *prev;
+	size_t bucket = HT_IDX();
+	Entry *e = self->entries[bucket], *prev;
 	int i = 0;
 
 	if (e == NULL)
@@ -137,10 +104,10 @@ void cht_delete(HashTable *h, const char *key)
 		if (!strcmp(e->key, key))
 		{
 			if (i == 0 && e->next == NULL)
-				h->entries[bucket] = NULL;
+				self->entries[bucket] = NULL;
 
 			if (i == 0 && e->next != NULL)
-				h->entries[bucket] = e->next;
+				self->entries[bucket] = e->next;
 
 			if (i != 0 && e->next == NULL)
 				prev->next = NULL;
@@ -162,25 +129,25 @@ void cht_delete(HashTable *h, const char *key)
 	}
 }
 
-size_t cht_size(HashTable *h)
+size_t cht_size(HashTable *self)
 {
 	size_t ret = 0, i;
 
-	TABLE_FOREACH(i)
+	for (i = 0; i < self->size; ++i)
 	{
-		if (h->entries[i] != NULL)
+		if (self->entries[i] != NULL)
 			++ret;
 	}
 
 	return ret;
 }
 
-void cht_free(HashTable *h)
+void cht_free(HashTable *self)
 {
 	size_t i;
-	TABLE_FOREACH(i)
+	for (i = 0; i < self->size; ++i)
 	{
-		Entry *e = h->entries[i];
+		Entry *e = self->entries[i];
 
 		if (e)
 		{
@@ -190,19 +157,19 @@ void cht_free(HashTable *h)
 		}
 	}
 
-	free(h->entries);
-	free(h);
+	free(self->entries);
+	free(self);
 }
 
-void cht_print(HashTable *h)
+void cht_print(HashTable *self)
 {
 	static unsigned int n = 1, i;
 	printf("cht_print() Call No. %d:\n", n++);
 	puts("----------------------------");
 
-	TABLE_FOREACH(i)
+	for (i = 0; i < self->size; ++i)
 	{
-		Entry *e = h->entries[i];
+		Entry *e = self->entries[i];
 
 		if (e == NULL)
 			continue;
