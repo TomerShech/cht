@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "cht.h"
+#include <cht.h>
 
 /* a very simple hash function that was presented in K&R version 2 */
 unsigned long kr_hash(const char *s)
