@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "../src/hash.h"
+#include "hash.h"
 
 int main(void)
 {

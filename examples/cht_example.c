@@ -3,9 +3,9 @@
 #include "cht.h"
 
 /* a very simple hash function that was presented in K&R version 2 */
-size_t kr_hash(const char *s)
+unsigned long kr_hash(const char *s)
 {
-	size_t hash;
+	unsigned long hash;
 
 	for (hash = 0; *s != '\0'; ++s)
 		hash = *s + 31 * hash;

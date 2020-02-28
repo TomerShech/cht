@@ -1,22 +1,26 @@
-# cht - C hash table implementation
+# Cor - C Data Structures implementations
 
-cht will be useable as a library in the near future.
-Adding more useful data structures (that C lacks) such as Linked Lists and Dynamic arrays is also on the To-Do list.
+Cor (Latin for Heart) is a collection of minimalist & useful data structures libraries for C.
+Written in a way that shouldn't interfere with the rest of your project, you can easily just drag and drop the `.c` file and its header and compile them along with it.
+At the moment, a Hash Table and a Doubly Linked List are available. Cor is at a very early stage, but also actively developed.
 
-## Installation
-Clone the repo and just drop `cht.h` & `cht.c` right in. They are written in a way that shouldn't interfere with the rest of your project.
+## Installation (Unix-like)
+Once you've cloned the repo, you can use `make TARGET=<library name without lib prefix>` to create & install it.
 ```
-git clone https://github.com/TomerShech/cht.git
-cd cht
-cp src/cht.* your-project-directory/
+git clone https://github.com/TomerShech/cor.git && cd cor
+
+make TARGET=cht # create the hash table static library
+make TARGET=ll # create the linked list static library
+
+(sudo) make install TARGET=<name> # install the library
+(sudo) make uninstall TARGET=<name> # uninstall it
 ```
 
-## Example usage
-Include `cht.h` and you're good to go. It is very well-commented, and the functions names are pretty much self-explanatory.
+## Example
+After installation, include the header file and you're good to go. It is very well-commented, and the functions names are pretty much self-explanatory.
 ```c
 #include <stdio.h>
-
-#include "cht.h"
+#include <cht.h>
 
 /* forward declaration */
 size_t kr_hash(const char *s);
@@ -35,24 +39,11 @@ int main(void)
 	cht_insert(people, "Joanna", "singer");
 
 	cht_print(people);
-	/*
-		cht_print() Call No. 1:
-		----------------------------
-		bucket #4660 ('John': 'programmer')
-		bucket #6908 ('Joanna': 'singer')
-		bucket #13445 ('Emily': 'artist')
-	*/
 
 	/* remove an entry from people */
 	cht_delete(people, "John");
 
 	cht_print(people);
-	/*
-		cht_print() Call No. 2:
-		----------------------------
-		bucket #6908 ('Joanna': 'singer')
-		bucket #13445 ('Emily': 'artist')
-	*/
 
 	cht_insert(animals, "Elephant", "Mammal");
 	cht_insert(animals, "Snake", "Reptile");
@@ -73,8 +64,6 @@ int main(void)
 
 	/* get a value from the table using its key */
 	char *nemo = cht_get(animals, "Clownfish");
-
-	puts(nemo); /* prints 'Pomacentridae' */
 
 	printf("There are %lu entries in the people hash table\n", cht_size(people));
 
@@ -97,7 +86,8 @@ size_t kr_hash(const char *s)
 }
 ```
 
-Output:
+Compile this code with `clang/gcc cht_example.c -lcht -o example` and then run `./example`:
+
 ```
 cht_print() Call No. 1:
 ----------------------------
@@ -118,7 +108,7 @@ There are 2 entries in the people hash table
 ```
 
 ## Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+Pull requests are warmly welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 ## License
-This project is licensed under the MIT License. See the [LICENSE](https://github.com/TomerShech/cht/blob/master/LICENSE) file for further reference.
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/TomerShech/cor/blob/master/LICENSE) file for further reference.
