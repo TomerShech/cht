@@ -8,6 +8,7 @@ At the moment, a Hash Table and a Doubly Linked List are available. Cor is at a 
 Once you've cloned the repo, you can use `make TARGET=<library name without lib prefix>` to create & install it.
 ```
 git clone https://github.com/TomerShech/cor.git && cd cor
+mkdir -p build lib # important, without this line make will fail!
 
 make TARGET=cht # create the hash table static library
 make TARGET=ll # create the linked list static library
