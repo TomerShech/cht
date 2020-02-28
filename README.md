@@ -1,6 +1,6 @@
 # Cor - C Data Structures implementations
 
-Cor (Latin for Heart) is a collection of minimalist & useful data structures libraries for C.
+Cor (Latin for Heart ❤️) is a collection of minimalist & useful data structures libraries for C.
 Written in a way that shouldn't interfere with the rest of your project, you can easily just drag and drop the `.c` file and its header and compile them along with it.
 At the moment, a Hash Table and a Doubly Linked List are available. Cor is at a very early stage, but also actively developed.
 
