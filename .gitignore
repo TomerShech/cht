@@ -39,8 +39,6 @@
 *.i*86
 *.x86_64
 *.hex
-cht
-playground.c
 
 # Debug files
 *.dSYM/
