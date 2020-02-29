@@ -10,14 +10,14 @@
 */
 typedef unsigned long (*hash_fn)(const char *);
 
-typedef struct _Entry
+typedef struct Entry
 {
     char *key;
     char *val;
-    struct _Entry *next;
+    struct Entry *next;
 } Entry;
 
-typedef struct _HashTable
+typedef struct HashTable
 {
     /* an array of Entry pointers */
     Entry **entries;

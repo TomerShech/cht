@@ -4,22 +4,30 @@
 
 #include "cht.h"
 #include "hash.h"
+#include "util.h"
 
 #define DEFAULT_HT_SIZE 20000
 #define HT_IDX() \
-	((self->fn != NULL) ? self->fn(key) : hash_djb2(key)) % self->size
+	(((self->fn != NULL) ? self->fn(key) : hash_djb2(key)) % (self->size))
 
-static Entry *_pair(const char *key, const char *val)
+static Entry *pair(const char *key, const char *val)
 {
 	Entry *e = malloc(sizeof(Entry));
 
-	if (!e || !(e->key = malloc(strlen(key) + 1)) || !(e->val = malloc(strlen(val) + 1)))
+	if (!e)
 		return NULL;
 
-	strcpy(e->key, key);
-	strcpy(e->val, val);
-
+	e->key = u_dupstr(key);
+	e->val = u_dupstr(val);
 	e->next = NULL;
+
+	if (!e->key || !e->val)
+	{
+		free(e->key);
+		free(e->val);
+		free(e);
+		return NULL;
+	}
 
 	return e;
 }
@@ -51,27 +59,24 @@ void cht_insert(HashTable *self, const char *key, const char *val)
 
 	if (e == NULL)
 	{
-		self->entries[idx] = _pair(key, val);
+		self->entries[idx] = pair(key, val);
 		return;
 	}
 
 	while (e != NULL)
 	{
-		if (!strcmp(e->key, key))
+		if (strcmp(e->key, key) == 0)
 		{
 			free(e->val);
-			if ((e->val = malloc(strlen(val) + 1)) != NULL)
-			{
-				strcpy(e->val, val);
-				return;
-			}
+			e->val = u_dupstr(val);
+			return;
 		}
 
 		prev = e;
 		e = prev->next;
 	}
 
-	prev->next = _pair(key, val);
+	prev->next = pair(key, val);
 }
 
 char *cht_get(HashTable *self, const char *key)
@@ -81,7 +86,7 @@ char *cht_get(HashTable *self, const char *key)
 
 	while (e != NULL)
 	{
-		if (!strcmp(e->key, key))
+		if (strcmp(e->key, key) == 0)
 			return e->val;
 
 		e = e->next;
@@ -92,40 +97,18 @@ char *cht_get(HashTable *self, const char *key)
 
 void cht_delete(HashTable *self, const char *key)
 {
-	size_t bucket = HT_IDX();
-	Entry *e = self->entries[bucket], *prev;
-	int i = 0;
+	Entry **prev_next = &self->entries[HT_IDX()], *e;
 
-	if (e == NULL)
-		return;
-
-	while (e != NULL)
+	for (e = *prev_next; e != NULL; prev_next = &e->next, e = e->next)
 	{
-		if (!strcmp(e->key, key))
+		if (strcmp(e->key, key) == 0)
 		{
-			if (i == 0 && e->next == NULL)
-				self->entries[bucket] = NULL;
-
-			if (i == 0 && e->next != NULL)
-				self->entries[bucket] = e->next;
-
-			if (i != 0 && e->next == NULL)
-				prev->next = NULL;
-
-			if (i != 0 && e->next != NULL)
-				prev->next = e->next;
-
+			*prev_next = e->next;
 			free(e->key);
 			free(e->val);
 			free(e);
-
 			return;
 		}
-
-		prev = e;
-		e = prev->next;
-
-		++i;
 	}
 }
 
@@ -134,10 +117,8 @@ size_t cht_size(HashTable *self)
 	size_t ret = 0, i;
 
 	for (i = 0; i < self->size; ++i)
-	{
 		if (self->entries[i] != NULL)
 			++ret;
-	}
 
 	return ret;
 }
