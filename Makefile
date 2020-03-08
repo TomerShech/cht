@@ -6,7 +6,7 @@ AR ?= ar
 PREFIX_LIB ?= /usr/local/lib
 PREFIX_INC ?= /usr/local/include
 
-CFLAGS ?= -g -Wall -Wextra -pedantic
+CFLAGS ?= -g -Wall -Wextra -pedantic -Isrc
 RM ?= -rm -f
 SRCDIR ?= src/$(TARGET)
 BUILDDIR ?= build
@@ -21,7 +21,7 @@ default: $(NAME)
 all: default
 
 OBJECTS = $(patsubst $(SRCDIR)/%.c, $(BUILDDIR)/%.o, $(wildcard $(SRCDIR)/*.c))
-HEADERS = $(wildcard *.h)
+HEADERS = $(wildcard *.h) util.h
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@
