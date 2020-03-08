@@ -7,10 +7,10 @@ typedef enum
     LL_DIR_TAIL
 } LL_Dir;
 
-typedef struct _LL_Node
+typedef struct LL_Node
 {
-    struct _LL_Node *prev;
-    struct _LL_Node *next;
+    struct LL_Node *prev;
+    struct LL_Node *next;
     void *val;
 } LL_Node;
 
