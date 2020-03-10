@@ -1,5 +1,5 @@
 TARGET ?= cht
-CC ?= cc
+CC ?= gcc
 AR ?= ar
 
 # change us if you like

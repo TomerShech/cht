@@ -4,6 +4,8 @@
 
 /* LL_Node */
 
+/* Allocate a new LL_Node struct with the given value `val`. Return it, or NULL on failure */
+
 LL_Node *ll_node_new(void *val)
 {
     LL_Node *self = malloc(sizeof(LL_Node));
@@ -18,7 +20,14 @@ LL_Node *ll_node_new(void *val)
     return self;
 }
 
+/* ---------------------------------------- */
+
 /* LL_Iterator */
+
+/*
+  * Allocate a new LL_Iterator struct from the list `list` and direction `dir`.
+  * Return it, or NULL on failure
+*/
 
 LL_Iterator *ll_iter_new(LL *list, LL_Dir dir)
 {
@@ -26,10 +35,7 @@ LL_Iterator *ll_iter_new(LL *list, LL_Dir dir)
     return ll_iter_new_from_node(node, dir);
 }
 
-/*
- * Allocate a new LL_Iterator with the given start
- * node. NULL on failure.
- */
+/* Allocate a new LL_Iterator with the given start node. Return it, or NULL on failure */
 
 LL_Iterator *ll_iter_new_from_node(LL_Node *node, LL_Dir dir)
 {
@@ -44,152 +50,52 @@ LL_Iterator *ll_iter_new_from_node(LL_Node *node, LL_Dir dir)
     return self;
 }
 
-/*
- * Return the next LL_Node or NULL when no more
- * nodes remain in the list.
- */
+/* Return the next LL_Node or NULL when no more nodes are left in the list */
 
 LL_Node *ll_iter_next(LL_Iterator *self)
 {
-    LL_Node *curr = self->next;
+    LL_Node *cur = self->next;
 
-    if (curr)
-        self->next = self->dir == LL_DIR_HEAD ? curr->next : curr->prev;
+    if (cur)
+        self->next = self->dir == LL_DIR_HEAD ? cur->next : cur->prev;
 
-    return curr;
+    return cur;
 }
 
-/*
- * Free the list iterator.
- */
+/* Deallocate the list iterator */
 
 void ll_iter_free(LL_Iterator *self)
 {
-    free(self);
+    if (self)
+        free(self);
     self = NULL;
 }
 
+/* ---------------------------------------- */
+
 /* LL */
 
-/*
- * Allocate a new LL. NULL on failure.
- */
+/* Allocate a new LL struct and return it, or NULL on failure */
 
 LL *ll_new(void)
 {
     LL *self = malloc(sizeof(LL));
+
     if (!self)
         return NULL;
 
     self->head = NULL;
     self->tail = NULL;
     self->free = NULL;
-    self->match = NULL;
+    self->cmp = NULL;
     self->len = 0;
 
     return self;
 }
 
-/*
- * Free the list.
- */
+/* Prepend the node `node` to the list `self` and return it, or NULL on failure */
 
-void ll_free(LL *self)
-{
-    unsigned int len = self->len;
-    LL_Node *next;
-    LL_Node *curr = self->head;
-
-    while (len--)
-    {
-        next = curr->next;
-        if (self->free)
-            self->free(curr->val);
-        free(curr);
-        curr = next;
-    }
-
-    free(self);
-}
-
-/*
- * Append the given node to the list
- * and return the node, NULL on failure.
- */
-
-LL_Node *ll_rpush(LL *self, LL_Node *node)
-{
-    if (!node)
-        return NULL;
-
-    if (self->len == 0)
-    {
-        self->head = node;
-        self->tail = node;
-        node->prev = NULL;
-        node->next = NULL;
-    }
-    else
-    {
-        node->prev = self->tail;
-        node->next = NULL;
-        self->tail->next = node;
-        self->tail = node;
-    }
-
-    ++self->len;
-
-    return node;
-}
-
-/*
- * Return / detach the last node in the list, or NULL.
- */
-
-LL_Node *ll_rpop(LL *self)
-{
-    if (self->len == 0)
-        return NULL;
-
-    LL_Node *node = self->tail;
-
-    if (--self->len)
-        (self->tail = node->prev)->next = NULL;
-    else
-        self->tail = self->head = NULL;
-
-    node->next = node->prev = NULL;
-
-    return node;
-}
-
-/*
- * Return / detach the first node in the list, or NULL.
- */
-
-LL_Node *ll_lpop(LL *self)
-{
-    if (self->len == 0)
-        return NULL;
-
-    LL_Node *node = self->head;
-
-    if (--self->len)
-        (self->head = node->next)->prev = NULL;
-    else
-        self->head = self->tail = NULL;
-
-    node->next = node->prev = NULL;
-
-    return node;
-}
-
-/*
- * Prepend the given node to the list
- * and return the node, NULL on failure.
- */
-
-LL_Node *ll_lpush(LL *self, LL_Node *node)
+LL_Node *ll_prepend(LL *self, LL_Node *node)
 {
     if (!node)
         return NULL;
@@ -212,9 +118,69 @@ LL_Node *ll_lpush(LL *self, LL_Node *node)
     return node;
 }
 
-/*
- * Return the node associated to val or NULL.
- */
+/* Append the node `node` to the list `self` and return it, or NULL on failure */
+
+LL_Node *ll_append(LL *self, LL_Node *node)
+{
+    if (!node)
+        return NULL;
+
+    if (self->len == 0) /* list is empty */
+    {
+        self->head = self->tail = node;
+        node->prev = node->next = NULL;
+    }
+    else
+    {
+        node->prev = self->tail;
+        node->next = NULL;
+        self->tail->next = self->tail = node;
+    }
+
+    ++self->len;
+
+    return node;
+}
+
+/* Return/detach the first node in the list, or return NULL */
+
+LL_Node *ll_shift(LL *self)
+{
+    if (self->len == 0)
+        return NULL;
+
+    LL_Node *first = self->head;
+
+    if (--self->len)
+        (self->head = first->next)->prev = NULL;
+    else
+        self->head = self->tail = NULL;
+
+    first->next = first->prev = NULL;
+
+    return first;
+}
+
+/* Return/detach the last node in the list, or return NULL */
+
+LL_Node *ll_pop(LL *self)
+{
+    if (self->len == 0) /* no nodes... */
+        return NULL;
+
+    LL_Node *last = self->tail;
+
+    if (--self->len)
+        (self->tail = last->prev)->next = NULL;
+    else /* len is 0 */
+        self->tail = self->head = NULL;
+
+    last->next = last->prev = NULL;
+
+    return last;
+}
+
+/* Return the node associated to val, or NULL if not found */
 
 LL_Node *ll_find(LL *self, void *val)
 {
@@ -223,15 +189,15 @@ LL_Node *ll_find(LL *self, void *val)
 
     while ((node = ll_iter_next(it)))
     {
-        if (self->match)
+        if (self->cmp)
         {
-            if (self->match(val, node->val))
+            if (self->cmp(val, node->val))
             {
                 ll_iter_free(it);
                 return node;
             }
         }
-        else
+        else /* No custom compare function, just use C's == */
         {
             if (val == node->val)
             {
@@ -243,24 +209,23 @@ LL_Node *ll_find(LL *self, void *val)
 
     ll_iter_free(it);
 
+    /* If we got here, no node was found, so we return NULL */
     return NULL;
 }
 
-/*
- * Return the node at the given index or NULL.
- */
+/* Return the node at the given index, or NULL if index is invalid */
 
 LL_Node *ll_at(LL *self, int index)
 {
     LL_Dir dir = LL_DIR_HEAD;
 
-    if (index < 0)
+    if (index < 0) /* Negative index, search from the tail */
     {
         dir = LL_DIR_TAIL;
         index = ~index;
     }
 
-    if ((unsigned)index < self->len)
+    if ((unsigned int)index < self->len)
     {
         LL_Iterator *it = ll_iter_new(self, dir);
         LL_Node *node = ll_iter_next(it);
@@ -289,3 +254,25 @@ void ll_remove(LL *self, LL_Node *node)
     free(node);
     --self->len;
 }
+
+/* Deallocate the list */
+
+void ll_free(LL *self)
+{
+    unsigned int len = self->len;
+    LL_Node *next;
+    LL_Node *cur = self->head;
+
+    while (len--)
+    {
+        next = cur->next;
+        if (self->free)
+            self->free(cur->val);
+        free(cur);
+        cur = next;
+    }
+
+    free(self);
+}
+
+/* ---------------------------------------- */
