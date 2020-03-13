@@ -64,6 +64,7 @@ list_node *list_at(list *this, int index);
 list_node *list_pop(list *this);
 list_node *list_shift(list *this);
 void list_remove(list *this, list_node *node);
+void list_reverse(list *this);
 void list_free(list *this);
 
 /* -------------------------------------- */

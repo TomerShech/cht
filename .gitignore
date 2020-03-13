@@ -46,6 +46,8 @@
 *.idb
 *.pdb
 
+playground.c
+
 # Kernel Module Compile Results
 *.mod*
 *.cmd

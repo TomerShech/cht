@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "list.h"
 
 /* -------------------------------------- */
@@ -81,26 +83,6 @@ list *list_new(void)
     this->len = 0;
 
     return this;
-}
-
-/* Deallocate all nodes of list `this`, as well as the list itself */
-
-void list_free(list *this)
-{
-    unsigned int len = this->len;
-    list_node *next;
-    list_node *cur = this->head;
-
-    while (len--)
-    {
-        next = cur->next;
-        if (this->free)
-            this->free(cur->val);
-        free(cur);
-        cur = next;
-    }
-
-    free(this);
 }
 
 /* Prepend node `node` to list `this` and return it, or NULL on failure */
@@ -262,6 +244,45 @@ void list_remove(list *this, list_node *node)
     free(node);
 
     --this->len;
+}
+
+void list_reverse(list *this)
+{
+    list_iterator *it = list_iter_new(this, LIST_DIR_HEAD);
+    list_node *tmp = this->head;
+    list_node *cur;
+
+    this->head = this->tail;
+    this->tail = tmp;
+
+    while ((cur = list_iter_next(it)))
+    {
+        tmp = cur->next;
+        cur->next = cur->prev;
+        cur->prev = tmp;
+    }
+
+    list_iter_free(it);
+}
+
+/* Deallocate all nodes of list `this`, as well as the list itself */
+
+void list_free(list *this)
+{
+    unsigned int len = this->len;
+    list_node *next;
+    list_node *cur = this->head;
+
+    while (len--)
+    {
+        next = cur->next;
+        if (this->free)
+            this->free(cur->val);
+        free(cur);
+        cur = next;
+    }
+
+    free(this);
 }
 
 /* -------------------------------------- */

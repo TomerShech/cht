@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include <list.h>
+#include <cor/list.h>
 
 int main(void)
 {
@@ -12,12 +12,14 @@ int main(void)
 
     const int ages[] = {50, 57, 48};
 
+    list_reverse(singers);
+
     list_iterator *iter = list_iter_new(singers, LIST_DIR_HEAD);
     list_node *n;
     int i = 0;
 
     while ((n = list_iter_next(iter)))
-        printf("%s 💀 at %d\n", n->val, ages[i++]);
+        printf("%s 💀 at %d\n", (char *)n->val, ages[i++]);
 
     list_iter_free(iter);
     list_free(singers); /* Kill 'em all */
