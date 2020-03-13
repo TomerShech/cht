@@ -2,9 +2,9 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "cht.h"
+#include "ht.h"
 #include "hash.h"
-#include "util.h"
+#include "cor_util.h"
 
 #define DEFAULT_HT_SIZE 20000
 #define HT_IDX() \
@@ -17,8 +17,8 @@ static Entry *pair(const char *key, const char *val)
 	if (!e)
 		return NULL;
 
-	e->key = u_dupstr(key);
-	e->val = u_dupstr(val);
+	e->key = cu_dupstr(key);
+	e->val = cu_dupstr(val);
 	e->next = NULL;
 
 	if (!e->key || !e->val)
@@ -32,7 +32,7 @@ static Entry *pair(const char *key, const char *val)
 	return e;
 }
 
-HashTable *cht_init(hash_fn fn, size_t size)
+HashTable *ht_init(hash_fn fn, size_t size)
 {
 	HashTable *ret = malloc(sizeof(HashTable));
 	size_t i;
@@ -52,7 +52,7 @@ HashTable *cht_init(hash_fn fn, size_t size)
 	return ret;
 }
 
-void cht_insert(HashTable *self, const char *key, const char *val)
+void ht_insert(HashTable *self, const char *key, const char *val)
 {
 	size_t idx = HT_IDX();
 	Entry *e = self->entries[idx], *prev;
@@ -68,7 +68,7 @@ void cht_insert(HashTable *self, const char *key, const char *val)
 		if (strcmp(e->key, key) == 0)
 		{
 			free(e->val);
-			e->val = u_dupstr(val);
+			e->val = cu_dupstr(val);
 			return;
 		}
 
@@ -79,7 +79,7 @@ void cht_insert(HashTable *self, const char *key, const char *val)
 	prev->next = pair(key, val);
 }
 
-char *cht_get(HashTable *self, const char *key)
+char *ht_get(HashTable *self, const char *key)
 {
 	size_t idx = HT_IDX();
 	Entry *e = self->entries[idx];
@@ -95,7 +95,7 @@ char *cht_get(HashTable *self, const char *key)
 	return NULL;
 }
 
-void cht_delete(HashTable *self, const char *key)
+void ht_delete(HashTable *self, const char *key)
 {
 	Entry **prev_next = &self->entries[HT_IDX()], *e;
 
@@ -112,7 +112,7 @@ void cht_delete(HashTable *self, const char *key)
 	}
 }
 
-size_t cht_size(HashTable *self)
+size_t ht_size(HashTable *self)
 {
 	size_t ret = 0, i;
 
@@ -123,7 +123,7 @@ size_t cht_size(HashTable *self)
 	return ret;
 }
 
-void cht_free(HashTable *self)
+void ht_free(HashTable *self)
 {
 	size_t i;
 	for (i = 0; i < self->size; ++i)
@@ -142,10 +142,10 @@ void cht_free(HashTable *self)
 	free(self);
 }
 
-void cht_print(HashTable *self)
+void ht_print(HashTable *self)
 {
 	static unsigned int n = 1, i;
-	printf("cht_print() Call No. %d:\n", n++);
+	printf("ht_print() Call No. %d:\n", n++);
 	puts("----------------------------");
 
 	for (i = 0; i < self->size; ++i)

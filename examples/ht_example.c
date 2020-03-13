@@ -1,11 +1,10 @@
 #include <stdio.h>
-
-#include <cht.h>
+#include <cor/ht.h>
 
 /* a very simple hash function that was presented in K&R version 2 */
-unsigned long kr_hash(const char *s)
+unsigned int kr_hash(const char *s)
 {
-	unsigned long hash;
+	unsigned int hash;
 
 	for (hash = 0; *s != '\0'; ++s)
 		hash = *s + 31 * hash;
@@ -15,20 +14,20 @@ unsigned long kr_hash(const char *s)
 
 int main(void)
 {
-	/* use the default hash function provided by cht */
-	HashTable *people = cht_init(NULL, 0);
+	/* use the default hash function provided by ht */
+	HashTable *people = ht_init(NULL, 0);
 	/* OR use a custom hash function, which must return
 	an unsigned integer and take a constant string */
-	HashTable *animals = cht_init(kr_hash, 10);
+	HashTable *animals = ht_init(kr_hash, 10);
 
 	/* insert some key-value pairs into the people table */
-	cht_insert(people, "John", "programmer");
-	cht_insert(people, "Emily", "artist");
-	cht_insert(people, "Joanna", "singer");
+	ht_insert(people, "John", "programmer");
+	ht_insert(people, "Emily", "artist");
+	ht_insert(people, "Joanna", "singer");
 
-	cht_print(people);
+	ht_print(people);
 	/*
-		cht_print() Call No. 1:
+		ht_print() Call No. 1:
 		----------------------------
 		bucket #4660 ('John': 'programmer')
 		bucket #6908 ('Joanna': 'singer')
@@ -36,23 +35,23 @@ int main(void)
 	*/
 
 	/* remove an entry from people */
-	cht_delete(people, "John");
+	ht_delete(people, "John");
 
-	cht_print(people);
+	ht_print(people);
 	/*
-		cht_print() Call No. 2:
+		ht_print() Call No. 2:
 		----------------------------
 		bucket #6908 ('Joanna': 'singer')
 		bucket #13445 ('Emily': 'artist')
 	*/
 
-	cht_insert(animals, "Elephant", "Mammal");
-	cht_insert(animals, "Snake", "Reptile");
-	cht_insert(animals, "Clownfish", "Pomacentridae");
+	ht_insert(animals, "Elephant", "Mammal");
+	ht_insert(animals, "Snake", "Reptile");
+	ht_insert(animals, "Clownfish", "Pomacentridae");
 
-	cht_print(animals);
+	ht_print(animals);
 	/*
-		cht_print() Call No. 3:
+		ht_print() Call No. 3:
 		----------------------------
 		bucket #661 ('Clownfish': 'Pomacentridae')
 		bucket #4817 ('Elephant': 'Mammal')
@@ -64,15 +63,15 @@ int main(void)
 	*/
 
 	/* get a value from the table using its key */
-	char *nemo = cht_get(animals, "Clownfish");
+	char *nemo = ht_get(animals, "Clownfish");
 
 	puts(nemo); /* prints 'Pomacentridae' */
 
-	printf("There are %lu entries in the people hash table\n", cht_size(people));
+	printf("There are %lu entries in the people hash table\n", ht_size(people));
 
 	/* deallocate the memory that was used by the tables */
-	cht_free(animals);
-	cht_free(people);
+	ht_free(animals);
+	ht_free(people);
 
 	return 0;
 }

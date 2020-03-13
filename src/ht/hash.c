@@ -1,8 +1,8 @@
 #include "hash.h"
 
-unsigned long hash_djb2(const char *str)
+uint32_t hash_djb2(const char *str)
 {
-    unsigned long hash = 5381UL;
+    uint32_t hash = 5381;
     int c;
 
     while ((c = *str++))
@@ -11,9 +11,9 @@ unsigned long hash_djb2(const char *str)
     return hash;
 }
 
-unsigned long hash_sdbm(const char *str)
+uint32_t hash_sdbm(const char *str)
 {
-    unsigned long hash = 0UL;
+    uint32_t hash = 0;
     int c;
 
     while ((c = *str++))
@@ -22,14 +22,14 @@ unsigned long hash_sdbm(const char *str)
     return hash;
 }
 
-unsigned long hash_fnv1a(const char *str)
+uint32_t hash_fnv1a(const char *str)
 {
-    unsigned long hash = 0x811c9dc5UL;
+    uint32_t hash = 0x811c9dc5;
 
     while (*str)
     {
         hash ^= (unsigned char)*str++;
-        hash *= 0x01000193UL;
+        hash *= 0x01000193;
     }
 
     return hash;

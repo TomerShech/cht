@@ -99,7 +99,8 @@ Temporary Items
 .apdisk
 
 ### VisualStudioCode ###
-.vscode/
+.vscode/*
+!.vscode/settings.json
 
 ### VisualStudioCode Patch ###
 # Ignore all local history of files

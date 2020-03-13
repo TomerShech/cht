@@ -1,11 +1,10 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 
-#include "util.h"
+#include "cor_util.h"
 
-static void fuk(const char *fmt, ...)
+void cu_fuk(const char *fmt, ...)
 {
     va_list ap;
 
@@ -18,7 +17,7 @@ static void fuk(const char *fmt, ...)
     exit(1);
 }
 
-static long filelen(FILE *fp)
+long cu_filelen(FILE *fp)
 {
     long ret;
 
@@ -29,27 +28,27 @@ static long filelen(FILE *fp)
     return ret;
 }
 
-static FILE *safe_fopen(const char *p, const char *m)
+FILE *cu_safe_fopen(const char *p, const char *m)
 {
     FILE *ret = fopen(p, m);
 
     if (ret == NULL)
-        fuk("Cannot open file '%s'", p);
+        cu_fuk("Cannot open file '%s'", p);
 
     return ret;
 }
 
-static void *safe_malloc(size_t n)
+void *cu_safe_malloc(size_t n)
 {
     void *ret = malloc(n);
 
     if (ret == NULL)
-        fuk("Couldn't allocate %lu bytes of memory", n);
+        cu_fuk("Couldn't allocate %lu bytes of memory", n);
 
     return ret;
 }
 
-char *u_dupstr(const char *s)
+char *cu_dupstr(const char *s)
 {
     size_t len = strlen(s) + 1;
     char *p = malloc(len);
@@ -57,10 +56,10 @@ char *u_dupstr(const char *s)
     return p ? memcpy(p, s, len) : NULL;
 }
 
-char *u_readfile(const char *path)
+char *cu_readfile(const char *path)
 {
-    FILE *fp = safe_fopen(path, "r");
-    long len = filelen(fp);
+    FILE *fp = cu_safe_fopen(path, "r");
+    long len = cu_filelen(fp);
     char *buf = malloc(len + 1);
 
     buf[len] = '\0';
@@ -71,11 +70,11 @@ char *u_readfile(const char *path)
     return buf;
 }
 
-char *u_readfile2(const char *path)
+char *cu_readfile_alt(const char *path)
 {
-    FILE *fp = safe_fopen(path, "r");
-    long len = filelen(fp);
-    char *buf = safe_malloc(len + 1);
+    FILE *fp = cu_safe_fopen(path, "r");
+    long len = cu_filelen(fp);
+    char *buf = cu_safe_malloc(len + 1);
     int i = 0;
     char c;
 
