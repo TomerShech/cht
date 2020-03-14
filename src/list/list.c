@@ -244,6 +244,11 @@ void list_remove(list *this, list_node *node)
     --this->len;
 }
 
+/*
+ * Reverse list `this` in place.
+ * E.g. list ["a" => "b" => "c" => NULL] becomes ["c" => "b" => "a" => NULL]
+ */
+
 void list_reverse(list *this)
 {
     list_iterator *it = list_iter_new(this, LIST_DIR_HEAD);

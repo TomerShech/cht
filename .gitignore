@@ -47,6 +47,7 @@
 *.pdb
 
 playground.c
+test
 
 # Kernel Module Compile Results
 *.mod*

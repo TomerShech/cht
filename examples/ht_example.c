@@ -15,10 +15,10 @@ unsigned int kr_hash(const char *s)
 int main(void)
 {
 	/* use the default hash function provided by ht */
-	HashTable *people = ht_init(NULL, 0);
+	HashTable *people = ht_new(NULL, 0);
 	/* OR use a custom hash function, which must return
 	an unsigned integer and take a constant string */
-	HashTable *animals = ht_init(kr_hash, 10);
+	HashTable *animals = ht_new(kr_hash, 10);
 
 	/* insert some key-value pairs into the people table */
 	ht_insert(people, "John", "programmer");
