@@ -11,34 +11,34 @@
 */
 typedef uint32_t (*hash_fn)(const char *);
 
-typedef struct Entry
+typedef struct entry
 {
 	char *key;
 	char *val;
-	struct Entry *next;
-} Entry;
+	struct entry *next;
+} entry;
 
 typedef struct
 {
-	/* an array of Entry pointers */
-	Entry **entries;
+	/* an array of entry pointers */
+	entry **entries;
 	/* a user can supply a custom hash function for the hash table to use */
 	hash_fn fn;
 	/* number of entries in the hash table */
 	size_t size;
-} HashTable;
+} hash_table;
 
 /*
 	a custom hash function is optional, pass a NULL pointer to use the default one.
 	size is also optional, pass 0 to use the default value.
 */
-HashTable *ht_new(hash_fn fn, size_t size);
-void ht_insert(HashTable *self, const char *key, const char *val);
-char *ht_get(HashTable *self, const char *key);
-void ht_delete(HashTable *self, const char *key);
-size_t ht_size(HashTable *self);
-void ht_free(HashTable *self);
-void ht_print(HashTable *self);
+hash_table *ht_new(hash_fn fn, size_t size);
+void ht_insert(hash_table *self, const char *key, const char *val);
+char *ht_get(hash_table *self, const char *key);
+void ht_delete(hash_table *self, const char *key);
+size_t ht_size(hash_table *self);
+void ht_free(hash_table *self);
+void ht_print(hash_table *self);
 /*
 	print information about the table, useful for debugging purposes.
 	example output:

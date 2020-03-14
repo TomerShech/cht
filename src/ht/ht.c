@@ -10,9 +10,9 @@
 #define HT_IDX() \
 	(((self->fn != NULL) ? self->fn(key) : hash_djb2(key)) % (self->size))
 
-static Entry *pair(const char *key, const char *val)
+static entry *pair(const char *key, const char *val)
 {
-	Entry *e = malloc(sizeof(Entry));
+	entry *e = malloc(sizeof(entry));
 
 	if (!e)
 		return NULL;
@@ -32,9 +32,9 @@ static Entry *pair(const char *key, const char *val)
 	return e;
 }
 
-HashTable *ht_new(hash_fn fn, size_t size)
+hash_table *ht_new(hash_fn fn, size_t size)
 {
-	HashTable *ret = malloc(sizeof(HashTable));
+	hash_table *ret = malloc(sizeof(hash_table));
 
 	if (!ret)
 		return NULL;
@@ -42,7 +42,7 @@ HashTable *ht_new(hash_fn fn, size_t size)
 	ret->fn = fn;
 	ret->size = (size == 0) ? DEFAULT_HT_SIZE : size;
 
-	if (!(ret->entries = malloc(sizeof(Entry *) * ret->size)))
+	if (!(ret->entries = malloc(sizeof(entry *) * ret->size)))
 		return NULL;
 
 	for (size_t i = 0; i < ret->size; ++i)
@@ -51,10 +51,10 @@ HashTable *ht_new(hash_fn fn, size_t size)
 	return ret;
 }
 
-void ht_insert(HashTable *self, const char *key, const char *val)
+void ht_insert(hash_table *self, const char *key, const char *val)
 {
 	size_t idx = HT_IDX();
-	Entry *e = self->entries[idx], *prev;
+	entry *e = self->entries[idx], *prev;
 
 	if (e == NULL)
 	{
@@ -78,9 +78,9 @@ void ht_insert(HashTable *self, const char *key, const char *val)
 	prev->next = pair(key, val);
 }
 
-char *ht_get(HashTable *self, const char *key)
+char *ht_get(hash_table *self, const char *key)
 {
-	Entry *e = self->entries[HT_IDX()];
+	entry *e = self->entries[HT_IDX()];
 
 	while (e)
 	{
@@ -93,11 +93,11 @@ char *ht_get(HashTable *self, const char *key)
 	return NULL;
 }
 
-void ht_delete(HashTable *self, const char *key)
+void ht_delete(hash_table *self, const char *key)
 {
-	Entry **prev_next = &self->entries[HT_IDX()];
+	entry **prev_next = &self->entries[HT_IDX()];
 
-	for (Entry *e = *prev_next; e != NULL; prev_next = &e->next, e = e->next)
+	for (entry *e = *prev_next; e != NULL; prev_next = &e->next, e = e->next)
 	{
 		if (strcmp(e->key, key) == 0)
 		{
@@ -110,7 +110,7 @@ void ht_delete(HashTable *self, const char *key)
 	}
 }
 
-size_t ht_size(HashTable *self)
+size_t ht_size(hash_table *self)
 {
 	size_t ret = 0;
 
@@ -125,11 +125,11 @@ size_t ht_size(HashTable *self)
 	return ret;
 }
 
-void ht_free(HashTable *self)
+void ht_free(hash_table *self)
 {
 	for (size_t i = 0; i < self->size; ++i)
 	{
-		Entry *e = self->entries[i];
+		entry *e = self->entries[i];
 
 		if (e)
 		{
@@ -143,15 +143,15 @@ void ht_free(HashTable *self)
 	free(self);
 }
 
-void ht_print(HashTable *self)
+void ht_print(hash_table *self)
 {
 	static unsigned int n = 1;
 	printf("ht_print() Call No. %d:\n", n++);
 	puts("----------------------------");
 
-	for (int i = 0; i < self->size; ++i)
+	for (unsigned int i = 0; i < self->size; ++i)
 	{
-		Entry *e = self->entries[i];
+		entry *e = self->entries[i];
 
 		if (e == NULL)
 			continue;
