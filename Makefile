@@ -8,7 +8,7 @@ PREFIX_INC ?= /usr/local/include
 
 CFLAGS ?= -g -Wall -Wextra -pedantic -Isrc
 RM ?= -rm -f
-MKDIR = mkdir -p
+MKDIR ?= mkdir -p
 SRCDIR ?= src/$(TARGET)
 BUILDDIR ?= build
 LIBDIR ?= lib
@@ -33,7 +33,7 @@ $(TARGET): $(OBJECTS)
 	$(CC) $(OBJECTS) -Wall -o $@
 
 $(NAME): $(OBJECTS)
-	$(MKDIR) $(BUILDDIR)
+	@$(MKDIR) $(BUILDDIR)
 	$(AR) rcs $@ $^
 
 install: all
