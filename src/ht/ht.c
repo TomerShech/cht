@@ -32,10 +32,9 @@ static Entry *pair(const char *key, const char *val)
 	return e;
 }
 
-HashTable *ht_init(hash_fn fn, size_t size)
+HashTable *ht_new(hash_fn fn, size_t size)
 {
 	HashTable *ret = malloc(sizeof(HashTable));
-	size_t i;
 
 	if (!ret)
 		return NULL;
@@ -46,7 +45,7 @@ HashTable *ht_init(hash_fn fn, size_t size)
 	if (!(ret->entries = malloc(sizeof(Entry *) * ret->size)))
 		return NULL;
 
-	for (i = 0; i < ret->size; ++i)
+	for (size_t i = 0; i < ret->size; ++i)
 		ret->entries[i] = NULL;
 
 	return ret;
@@ -63,7 +62,7 @@ void ht_insert(HashTable *self, const char *key, const char *val)
 		return;
 	}
 
-	while (e != NULL)
+	while (e)
 	{
 		if (strcmp(e->key, key) == 0)
 		{
@@ -81,10 +80,9 @@ void ht_insert(HashTable *self, const char *key, const char *val)
 
 char *ht_get(HashTable *self, const char *key)
 {
-	size_t idx = HT_IDX();
-	Entry *e = self->entries[idx];
+	Entry *e = self->entries[HT_IDX()];
 
-	while (e != NULL)
+	while (e)
 	{
 		if (strcmp(e->key, key) == 0)
 			return e->val;
@@ -97,9 +95,9 @@ char *ht_get(HashTable *self, const char *key)
 
 void ht_delete(HashTable *self, const char *key)
 {
-	Entry **prev_next = &self->entries[HT_IDX()], *e;
+	Entry **prev_next = &self->entries[HT_IDX()];
 
-	for (e = *prev_next; e != NULL; prev_next = &e->next, e = e->next)
+	for (Entry *e = *prev_next; e != NULL; prev_next = &e->next, e = e->next)
 	{
 		if (strcmp(e->key, key) == 0)
 		{
@@ -114,19 +112,22 @@ void ht_delete(HashTable *self, const char *key)
 
 size_t ht_size(HashTable *self)
 {
-	size_t ret = 0, i;
+	size_t ret = 0;
 
-	for (i = 0; i < self->size; ++i)
+	for (size_t i = 0; i < self->size; ++i)
+	{
 		if (self->entries[i] != NULL)
+		{
 			++ret;
+		}
+	}
 
 	return ret;
 }
 
 void ht_free(HashTable *self)
 {
-	size_t i;
-	for (i = 0; i < self->size; ++i)
+	for (size_t i = 0; i < self->size; ++i)
 	{
 		Entry *e = self->entries[i];
 
@@ -144,11 +145,11 @@ void ht_free(HashTable *self)
 
 void ht_print(HashTable *self)
 {
-	static unsigned int n = 1, i;
+	static unsigned int n = 1;
 	printf("ht_print() Call No. %d:\n", n++);
 	puts("----------------------------");
 
-	for (i = 0; i < self->size; ++i)
+	for (int i = 0; i < self->size; ++i)
 	{
 		Entry *e = self->entries[i];
 
