@@ -115,12 +115,8 @@ size_t ht_size(hash_table *self)
 	size_t ret = 0;
 
 	for (size_t i = 0; i < self->size; ++i)
-	{
 		if (self->entries[i] != NULL)
-		{
 			++ret;
-		}
-	}
 
 	return ret;
 }
